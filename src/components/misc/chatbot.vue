@@ -2,10 +2,11 @@
   <v-container>
     <v-fab
       app
+      elevation="20"
       location="bottom right"
       color="primary"
       rounded="xl"
-      class="pa-5"
+      class="pa-5 mb-2 mr-2"
       @click="toggleChat"
     >
       <v-img :src="require(`@/assets/cougar.png`)" width="40" />
