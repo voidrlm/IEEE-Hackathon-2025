@@ -67,7 +67,7 @@ export default {
         // });
         //if (response.success) {
         //await this.$store.dispatch("setUser", response.data);
-        this.$router.push({ name: "Dashboard" });
+        this.$router.push({ name: "Feed" });
         // }
         // this.$store.dispatch("showSnackbar", {
         //   show: true,
