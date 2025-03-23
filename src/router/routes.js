@@ -11,6 +11,11 @@ export const routes = [
     component: () => import("../views/login.vue"),
   },
   {
+    path: "/feed",
+    name: "Feed",
+    component: () => import("../views/feed.vue"),
+  },
+  {
     path: "/events",
     name: "Events",
     component: () => import("../views/events.vue"),
