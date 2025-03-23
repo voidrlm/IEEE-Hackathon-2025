@@ -22,9 +22,7 @@
           <v-img :src="require(`@/assets/logo.svg`)" alt="Sample" width="30" />
         </v-col>
         <v-col align-self="center">
-          <span class="bold mb-5 ml-n3 text-h5 text-primary">
-            Clark Verse
-          </span>
+          <span class="bold mb-5 ml-n3 text-h5 text-primary"> ClarkVerse </span>
         </v-col>
       </v-row>
     </div>
@@ -39,13 +37,13 @@
         class="mb-5 text-white bold"
         :class="$vuetify.display.mdAndDown ? 'text-h3' : 'text-h2'"
       >
-        Welcome to clark strip club
+        Welcome to ClarkVerse
       </p>
       <div
         class="pt-5 text-white semibold"
         :class="$vuetify.display.mdAndDown ? 'text-h5' : 'text-h4'"
       >
-        Sample description
+        A verse-based social media platform for Clark University students
       </div>
     </div>
     <v-footer app class="bg-primary" height="30px">
