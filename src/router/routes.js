@@ -21,6 +21,16 @@ export const routes = [
     component: () => import("../views/events.vue"),
   },
   {
+    path: "/trending",
+    name: "Trending",
+    component: () => import("../views/trending.vue"),
+  },
+  {
+    path: "/jobs",
+    name: "Jobs",
+    component: () => import("../views/jobSearch.vue"),
+  },
+  {
     path: "/:pathMatch(.*)*",
     name: "Page Not Found",
 
