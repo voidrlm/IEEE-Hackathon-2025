@@ -9,7 +9,7 @@
             <v-text-field
               v-model="searchQuery"
               label="Search Events"
-              outlined
+              variant="solo"
               dense
               @input="searchEvents"
             ></v-text-field>
@@ -18,7 +18,7 @@
               v-model="selectedThemes"
               label="Select themes"
               :items="['Music', 'Art', 'Sports', 'Misc']"
-              outlined
+              variant="solo"
               dense
               multiple
             ></v-select>
