@@ -9,7 +9,7 @@
           class="bg-background mb-5 rounded-xl"
         >
           <v-img
-            src="https://www.clarku.edu/wp-content/themes/newclarku/assets/img/logo-seal-only.svg"
+            src="https://avatars.githubusercontent.com/u/117543015?v=4"
             alt="Sample"
             width="200"
         /></v-toolbar>
