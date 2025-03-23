@@ -9,6 +9,11 @@ export function getNavItems() {
 }
 const navItems = [
   {
+    title: "Feed",
+    icon: "mdi-script-text",
+    permission: [],
+  },
+  {
     title: "Events",
     icon: "mdi-calendar-multiple",
     permission: [],
