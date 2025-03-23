@@ -10,7 +10,17 @@ export function getNavItems() {
 const navItems = [
   {
     title: "Feed",
-    icon: "mdi-script-text",
+    icon: "mdi-home",
+    permission: [],
+  },
+  {
+    title: "Trending",
+    icon: "mdi-fire",
+    permission: [],
+  },
+  {
+    title: "Jobs",
+    icon: "mdi-briefcase",
     permission: [],
   },
   {
