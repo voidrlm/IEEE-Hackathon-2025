@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer ref="navbar" rail expand-on-hover permanent>
+  <v-navigation-drawer ref="navbar" rail permanent>
     <v-list nav>
       <v-list-item
         class="my-1"
@@ -7,7 +7,6 @@
         v-for="(item, index) in navItems"
         :key="index"
         :prepend-icon="item.icon"
-        :title="item.title"
         :value="item.value"
         :class="{ selectedView: $route.name === item.title }"
         @click="navigateTo(item.title)"
