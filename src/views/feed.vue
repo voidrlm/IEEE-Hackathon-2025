@@ -1,50 +1,126 @@
 <template>
   <v-container>
+    <!-- Filters -->
+    <v-row class="mt-4">
+      <v-col cols="12" md="4" offset-md="4">
+        <v-select
+          v-model="selectedCategory"
+          label="Select a category"
+          :items="categories"
+          outlined
+          dense
+        ></v-select>
+      </v-col>
+    </v-row>
+
     <v-row>
       <v-col cols="12" md="8" offset-md="2">
         <v-card
+          rounded="xl"
           class="pa-4 mb-4"
-          elevation="2"
-          v-for="post in posts"
-          :key="post.id"
+          elevation="3"
+          v-for="thread in filteredThreads"
+          :key="thread.id"
         >
-          <!-- Post Header -->
+          <!-- Thread Header -->
           <v-card-title class="text-h5 d-flex align-center">
-            <span>{{ post.title }}</span>
+            <v-avatar size="36" class="mr-3" :color="thread.flair.color">
+              <v-icon size="24">{{ thread.flair.icon }}</v-icon>
+            </v-avatar>
+            <span>{{ thread.title }}</span>
             <v-spacer />
             <!-- Voting Buttons -->
-            <v-btn icon small @click="votePost(post.id, 1)">
-              <v-icon small>mdi-arrow-up</v-icon>
+            <v-btn icon small @click="voteThread(thread.id, 1)">
+              <v-icon small color="green">mdi-arrow-up-bold</v-icon>
             </v-btn>
-            <span class="text-caption font-weight-bold">{{ post.score }}</span>
-            <v-btn icon small @click="votePost(post.id, -1)">
-              <v-icon small>mdi-arrow-down</v-icon>
+            <span class="text-caption font-weight-bold text-primary">{{
+              thread.score
+            }}</span>
+            <v-btn icon small @click="voteThread(thread.id, -1)">
+              <v-icon small color="red">mdi-arrow-down-bold</v-icon>
             </v-btn>
           </v-card-title>
 
-          <!-- Post Metadata -->
-          <v-card-subtitle class="text-body-2 text-muted">
-            {{ post.subreddit }} • Posted by {{ post.author }} •
-            {{ formatDate(post.created_utc) }}
+          <!-- Thread Metadata -->
+          <v-card-subtitle class="text-body-2 secondary--text">
+            {{ thread.category }} • Posted by
+            <span class="font-weight-medium">{{ thread.author }}</span> •
+            {{ formatDate(thread.created_utc) }}
           </v-card-subtitle>
 
-          <!-- Post Content -->
-          <v-card-text v-if="post.selftext">{{ post.selftext }}</v-card-text>
+          <!-- Thread Content -->
+          <v-card-text v-if="thread.content" class="text-body-1 mb-3">
+            {{ thread.content }}
+          </v-card-text>
 
-          <!-- Post Image -->
+          <!-- Thread Image -->
           <v-img
-            v-if="post.image"
-            :src="post.image"
-            alt="Post Image"
-            max-height="300"
-            contain
-            class="mb-3"
+            v-if="thread.image"
+            :src="thread.image"
+            alt="Thread Image"
+            height="300"
+            class="mb-3 rounded"
+            style="object-fit: cover"
           ></v-img>
 
-          <!-- Post Video -->
-          <div v-if="post.video" class="video-container">
-            <video controls :src="post.video" class="responsive-video"></video>
+          <!-- Thread Video -->
+          <v-responsive v-if="thread.video" class="mb-3">
+            <video controls :src="thread.video" class="w-100">
+              Your browser does not support the video tag.
+            </video>
+          </v-responsive>
+
+          <!-- Comments Section -->
+          <v-card-subtitle class="text-h6">Comments</v-card-subtitle>
+          <div
+            v-for="comment in thread.comments"
+            :key="comment.id"
+            class="mb-4"
+          >
+            <div class="d-flex align-center">
+              <v-avatar size="24" class="mr-3">{{
+                comment.user.charAt(0)
+              }}</v-avatar>
+              <div>
+                <span class="font-weight-bold">{{ comment.user }}</span>
+                <span class="text-caption">{{ comment.timestamp }}</span>
+              </div>
+            </div>
+            <v-card-text>{{ comment.text }}</v-card-text>
+            <v-btn icon small @click="replyToComment(thread.id, comment.id)">
+              <v-icon small>mdi-reply</v-icon>
+            </v-btn>
+
+            <!-- Nested Replies -->
+            <div v-if="comment.replies.length" class="pl-5">
+              <div
+                v-for="reply in comment.replies"
+                :key="reply.id"
+                class="d-flex align-center"
+              >
+                <v-avatar size="24" class="mr-3">{{
+                  reply.user.charAt(0)
+                }}</v-avatar>
+                <div>
+                  <span class="font-weight-bold">{{ reply.user }}</span>
+                  <span class="text-caption">{{ reply.timestamp }}</span>
+                </div>
+                <v-card-text>{{ reply.text }}</v-card-text>
+              </div>
+            </div>
           </div>
+
+          <!-- Add Comment -->
+          <v-textarea
+            v-model="newComment[thread.id]"
+            outlined
+            rows="2"
+            placeholder="Add a comment..."
+            class="mb-3"
+          ></v-textarea>
+          <v-btn color="primary" small @click="addComment(thread.id)"
+            >Comment</v-btn
+          >
         </v-card>
       </v-col>
     </v-row>
@@ -56,34 +132,79 @@ export default {
   name: "FeedView",
   data() {
     return {
-      posts: [],
+      threads: [],
+      categories: ["Tech", "Gaming", "Music", "Sports", "Misc"],
+      selectedCategory: null,
+      newComment: {},
     };
   },
   mounted() {
-    this.getPosts();
+    this.getThreads();
   },
   methods: {
-    // Fetch mock posts
-    async getPosts() {
-      this.posts = Array.from({ length: 50 }, (_, index) => ({
+    // Fetch mock threads
+    async getThreads() {
+      this.threads = Array.from({ length: 50 }, (_, index) => ({
         id: index + 1,
-        title: `Post Title ${index + 1}`,
-        subreddit: `r/Subreddit${index + 1}`,
+        title: `Thread Title ${index + 1}`,
+        category: this.categories[index % 5],
         author: `User${index + 1}`,
         created_utc: new Date().toISOString(),
-        selftext: `This is the content of post ${index + 1}.`,
+        content: `This is the content of thread ${index + 1}.`,
         score: Math.floor(Math.random() * 1000),
         image:
           index % 3 === 0
-            ? `https://picsum.photos/600/300?random=${index + 1}` // Using Lorem Picsum for random images
+            ? `https://picsum.photos/600/300?random=${index + 1}`
             : null,
         video:
           index % 5 === 0 ? `https://www.w3schools.com/html/mov_bbb.mp4` : null,
+        flair: {
+          icon: "mdi-crown",
+          color: "primary",
+        },
+        comments: [],
       }));
     },
     // Handle voting
-    async votePost(postId, direction) {
-      console.log(`Post ID: ${postId}, Vote Direction: ${direction}`);
+    async voteThread(threadId, direction) {
+      console.log(`Thread ID: ${threadId}, Vote Direction: ${direction}`);
+    },
+    // Add comment to thread
+    addComment(threadId) {
+      const text = this.newComment[threadId];
+      if (!text || !text.trim()) {
+        alert("Comment cannot be empty!");
+        return;
+      }
+      const thread = this.threads.find((t) => t.id === threadId);
+      const commentId = thread.comments.length + 1;
+      thread.comments.push({
+        id: commentId,
+        user: "Current User",
+        timestamp: new Date().toISOString(),
+        text,
+        replies: [],
+      });
+      this.newComment[threadId] = "";
+    },
+    // Reply to comment
+    replyToComment(threadId, commentId) {
+      const replyText = prompt("Enter your reply:");
+      if (!replyText || !replyText.trim()) {
+        alert("Reply cannot be empty!");
+        return;
+      }
+      const thread = this.threads.find((t) => t.id === threadId);
+      const comment = thread.comments.find((c) => c.id === commentId);
+      if (comment) {
+        const replyId = comment.replies.length + 1;
+        comment.replies.push({
+          id: replyId,
+          user: "Current User",
+          timestamp: new Date().toISOString(),
+          text: replyText,
+        });
+      }
     },
     // Format date for display
     formatDate(dateString) {
@@ -93,6 +214,14 @@ export default {
         day: "numeric",
         year: "numeric",
       });
+    },
+  },
+  computed: {
+    filteredThreads() {
+      if (!this.selectedCategory) return this.threads;
+      return this.threads.filter(
+        (thread) => thread.category === this.selectedCategory
+      );
     },
   },
 };
@@ -109,14 +238,13 @@ export default {
 .v-btn {
   margin-left: 8px;
 }
-.text-muted {
+.secondary--text {
   color: #6c757d;
 }
-.video-container {
-  position: relative;
+.rounded {
+  border-radius: 10px;
 }
-.responsive-video {
+.w-100 {
   width: 100%;
-  height: auto;
 }
 </style>
