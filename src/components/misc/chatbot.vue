@@ -9,8 +9,8 @@
       class="pa-5 mb-2 mr-2"
       @click="toggleChat"
     >
-      <v-img :src="require(`@/assets/cougar.png`)" width="40" />
-      <p class="ml-2">Ask cougar</p>
+      <v-img :src="require(`@/assets/cougar.png`)" width="50" />
+      <p class="ml-2 mt-n3">Ask cougar</p>
     </v-fab>
 
     <v-card v-if="showChat" class="chat-container" elevation="10">
