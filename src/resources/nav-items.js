@@ -19,13 +19,18 @@ const navItems = [
     permission: [],
   },
   {
-    title: "Jobs",
-    icon: "mdi-briefcase",
+    title: "Events",
+    icon: "mdi-calendar-multiple",
     permission: [],
   },
   {
-    title: "Events",
-    icon: "mdi-calendar-multiple",
+    title: "Jobs",
+    icon: "mdi-briefcase-search",
+    permission: [],
+  },
+  {
+    title: "Chat",
+    icon: "mdi-forum",
     permission: [],
   },
 ];
