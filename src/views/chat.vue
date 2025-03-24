@@ -6,8 +6,9 @@
         <v-text-field
           v-model="searchQuery"
           label="Search Chats"
-          dense
-          outlined
+          variant="solo"
+          rounded="xl"
+          density="compact"
           @input="searchChats"
         />
         <v-list>
@@ -18,7 +19,10 @@
             class="chat-item"
           >
             <template v-slot:prepend>
-              <v-avatar color="blue">
+              <v-avatar v-if="chat.isGroup" color="blue">
+                <v-icon>mdi-account-group</v-icon>
+              </v-avatar>
+              <v-avatar v-else color="blue">
                 {{ chat.name[0] }}
               </v-avatar>
             </template>
@@ -34,10 +38,8 @@
 
       <!-- Chat Window -->
       <v-col cols="9" class="chat-window">
-        <v-toolbar color="primary" dark>
-          <v-toolbar-title>{{
-            selectedChat?.name || "Select a chat"
-          }}</v-toolbar-title>
+        <v-toolbar color="primary" dark v-if="selectedChat">
+          <v-toolbar-title>{{ selectedChat?.name || "" }}</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-btn v-if="selectedChat?.isGroup" icon @click="openEditGroupDialog">
             <v-icon>mdi-pencil</v-icon>
@@ -58,7 +60,11 @@
           </v-card-text>
         </v-card>
 
-        <v-container class="messages" ref="messageContainer">
+        <v-container
+          class="messages"
+          ref="messageContainer"
+          v-if="selectedChat"
+        >
           <v-row
             v-for="(message, index) in selectedChat?.messages || []"
             :key="index"
@@ -73,32 +79,63 @@
           </v-row>
         </v-container>
 
+        <v-container v-else>
+          <div class="d-flex justify-center align-center" style="height: 100%">
+            <div>
+              <v-img
+                height="150"
+                width="150"
+                :src="require(`@/assets/empty_state.png`)"
+              />
+              <v-subtitle class="mt-2 text-center text-h6 bold"
+                >Please select a chat</v-subtitle
+              >
+            </div>
+          </div>
+        </v-container>
+
         <!-- Message Input -->
-        <v-footer class="message-input">
+        <v-footer class="message-input" v-if="selectedChat">
           <v-text-field
             v-model="newMessage"
             label="Type a message"
-            dense
-            outlined
+            rounded="xl"
+            density="compact"
+            variant="solo"
+            class="mr-3"
             @keyup.enter="sendMessage"
           />
-          <v-btn color="primary" @click="sendMessage">Send</v-btn>
+          <v-btn color="primary" class="mt-n5" @click="sendMessage">Send</v-btn>
         </v-footer>
       </v-col>
     </v-row>
 
     <!-- Create Group Dialog -->
-    <v-dialog v-model="createGroupDialog" max-width="400px">
-      <v-card>
+    <v-dialog
+      v-model="createGroupDialog"
+      max-width="400px"
+      content-class="rounded-xl"
+    >
+      <v-card rounded="xl">
         <v-card-title>Create Group</v-card-title>
         <v-card-text>
-          <v-text-field v-model="newGroupName" label="Group Name" required />
+          <v-text-field
+            v-model="newGroupName"
+            label="Group Name"
+            required
+            rounded="xl"
+            density="compact"
+            variant="solo"
+          />
           <v-autocomplete
             v-model="selectedMembers"
             :items="users"
             label="Add Members"
             multiple
             chips
+            rounded="xl"
+            density="compact"
+            variant="solo"
             item-title="name"
             item-value="name"
           >
@@ -127,6 +164,9 @@
             v-model="selectedChat.name"
             label="Group Name"
             required
+            rounded="xl"
+            density="compact"
+            variant="solo"
           />
           <v-autocomplete
             v-model="selectedChat.members"
@@ -136,6 +176,9 @@
             chips
             item-title="name"
             item-value="name"
+            rounded="xl"
+            density="compact"
+            variant="solo"
           >
             <template v-slot:item="{ props, item }">
               <v-list-item
@@ -164,18 +207,18 @@ export default {
       chats: [
         {
           id: 1,
-          name: "John Doe",
-          lastMessage: "Hey there!",
+          name: "Kashif Kashif Ahmed Chowdry",
+          lastMessage: "Hey there! ",
           messages: [],
           isGroup: false,
         },
         {
           id: 2,
-          name: "Team Chat",
+          name: "Software Engineering OGs",
           lastMessage: "Meeting at 3 PM",
           messages: [],
           isGroup: true,
-          members: ["Alice", "Bob"],
+          members: ["Manthan Manohar Sumbhe", "Uranbileg Enkhjargal"],
         },
       ],
       users: users,
