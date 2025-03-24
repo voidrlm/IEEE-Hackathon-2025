@@ -20,7 +20,7 @@ export default createVuetify({
       light: {
         dark: false,
         colors: {
-          background: "#FFFFFF",
+          background: "#eae9e9",
           surface: "#FFFFFF",
           primary: "#c00",
           secondary: "#03DAC6",
