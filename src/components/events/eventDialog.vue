@@ -173,7 +173,7 @@ export default {
       const newId = this.comments.length + 1;
       this.comments.push({
         id: newId,
-        user: "Current User",
+        user: this.$store.getters.currentUser.name,
         timestamp: new Date().toISOString(),
         text: this.newComment,
         upvotes: 0,
@@ -193,7 +193,7 @@ export default {
         const replyId = comment.replies.length + 1;
         comment.replies.push({
           id: replyId,
-          user: "Current User",
+          user: this.$store.getters.currentUser.name,
           timestamp: new Date().toISOString(),
           text: replyText,
         });
