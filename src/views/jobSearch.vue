@@ -111,6 +111,8 @@
 </template>
 
 <script>
+import { jobs } from "@/resources/web-constants";
+import { apiRequestHandler } from "@/services/rest-api-manager";
 import * as pdfjsLib from "pdfjs-dist/build/pdf";
 import pdfWorker from "pdfjs-dist/build/pdf.worker.entry";
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
@@ -119,54 +121,72 @@ export default {
   data() {
     return {
       drawer: true,
-      jobs: [],
+      jobs: jobs,
       searchQuery: "",
       selectedFilters: [],
       selectedJob: null,
     };
   },
-  mounted() {
-    this.getJobs();
-  },
+  mounted() {},
   methods: {
     triggerFileInput() {
       this.$refs.fileInput.click();
     },
     async handleFileUpload(event) {
       const file = event.target.files[0];
+      let textContent = "";
       if (file && file.type === "application/pdf") {
         const reader = new FileReader();
         reader.onload = async (e) => {
           const typedArray = new Uint8Array(e.target.result);
           const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
-          let textContent = "";
+
           for (let i = 1; i <= pdf.numPages; i++) {
             const page = await pdf.getPage(i);
             const text = await page.getTextContent();
             textContent += text.items.map((item) => item.str).join(" ") + " ";
           }
-          console.log("Extracted Text:", textContent);
+          // Send the text content to the API
+          const response = await apiRequestHandler("POST", "/resume-parser", {
+            text: textContent,
+          });
+          if (response.success) {
+            console.log(response.data);
+          } else {
+            console.log(response.message);
+          }
         };
+
         reader.readAsArrayBuffer(file);
+        // Using exising data since the API takes a longer time
+        // The following response can be commented out when using the API and responseFromApi can be used
+        let response = {
+          success: true,
+          data: ["Backend Developer (Java/Python)"],
+          status: "200",
+        };
+
+        console.log(response);
+        if (response.success) {
+          this.jobs = this.jobs.filter((job) =>
+            response.data.some(
+              (skill) =>
+                job.skills.some((jSkill) =>
+                  jSkill.toLowerCase().includes(skill.toLowerCase())
+                ) || job.title.toLowerCase().includes(skill.toLowerCase())
+            )
+          );
+        }
+
+        const responseFromApi = await apiRequestHandler("resumeAnalyse", {
+          content: textContent,
+        });
+        console.log(" Response:", responseFromApi);
       } else {
         alert("Please upload a valid PDF file.");
       }
     },
-    // Fetch mock jobs
-    async getJobs() {
-      this.jobs = Array.from({ length: 50 }, (_, index) => ({
-        id: index + 1,
-        title: `Java Intern`,
-        company: `Company ${index + 1}`,
-        companyLogo: `https://picsum.photos/100?random=${index + 1}`,
-        postedDate: new Date().toISOString(),
-        description: `This is the description of job ${index + 1}.`,
-        location: `City ${index % 10}, Country`,
-        salaryRange:
-          index % 2 === 0 ? `$${50 + index}k - $${70 + index}k` : null,
-        skills: ["Java", "Spring Boot", "SQL"].slice(0, (index % 3) + 1),
-      }));
-    },
+
     // Apply to a job
     applyToJob(jobId) {
       alert(`You have applied to Job ID ${jobId}`);
@@ -189,10 +209,6 @@ export default {
     // Select a job to display details
     selectJob(job) {
       this.selectedJob = job;
-    },
-    // Upload resume
-    uploadResume() {
-      alert("Upload resume feature is not implemented yet!");
     },
   },
   computed: {
