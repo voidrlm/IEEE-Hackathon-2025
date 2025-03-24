@@ -11,6 +11,7 @@
             rounded
             variant="solo"
             density="compact"
+            prepend-inner-icon="mdi-cursor-text"
           ></v-text-field>
           <v-textarea
             v-model="newPost.content"
@@ -19,6 +20,7 @@
             variant="solo"
             density="compact"
             rows="3"
+            prepend-inner-icon="mdi-card-text"
           ></v-textarea>
           <v-select
             v-model="newPost.category"
@@ -27,6 +29,7 @@
             rounded
             variant="solo"
             density="compact"
+            prepend-inner-icon="mdi-shape"
           ></v-select>
           <v-file-input
             v-model="newPost.media"
@@ -34,6 +37,7 @@
             rounded
             variant="solo"
             density="compact"
+            prepend-inner-icon="mdi-file"
           ></v-file-input>
         </v-card-text>
         <v-card-actions>
@@ -68,6 +72,7 @@
           density="compact"
           rounded
           clearable
+          prepend-inner-icon="mdi-shape"
         ></v-select>
       </v-col>
     </v-row>

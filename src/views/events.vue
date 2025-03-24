@@ -23,6 +23,7 @@
           density="compact"
           rounded
           clearable
+          prepend-inner-icon="mdi-shape"
         ></v-select>
       </v-col>
       <!-- Benefits Dropdown -->
@@ -35,6 +36,7 @@
           density="compact"
           rounded
           clearable
+          prepend-inner-icon="mdi-gift"
         ></v-select>
       </v-col>
     </v-row>

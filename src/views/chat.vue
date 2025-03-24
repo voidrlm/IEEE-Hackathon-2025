@@ -7,6 +7,7 @@
           v-model="searchQuery"
           label="Search Chats"
           variant="solo"
+          prepend-inner-icon="mdi-magnify"
           rounded="xl"
           density="compact"
           @input="searchChats"
@@ -101,6 +102,7 @@
             rounded="xl"
             density="compact"
             variant="solo"
+            prepend-inner-icon="mdi-message"
             class="mr-3"
             @keyup.enter="sendMessage"
           />
@@ -125,6 +127,7 @@
             rounded="xl"
             density="compact"
             variant="solo"
+            prepend-inner-icon="mdi-account-group"
           />
           <v-autocomplete
             v-model="selectedMembers"
@@ -137,6 +140,7 @@
             variant="solo"
             item-title="name"
             item-value="name"
+            prepend-inner-icon="mdi-account-multiple-plus"
           >
             <template v-slot:item="{ props, item }">
               <v-list-item
@@ -166,6 +170,7 @@
             rounded="xl"
             density="compact"
             variant="solo"
+            prepend-inner-icon="mdi-account-group"
           />
           <v-autocomplete
             v-model="selectedChat.members"
@@ -178,6 +183,7 @@
             rounded="xl"
             density="compact"
             variant="solo"
+            prepend-inner-icon="mdi-account-multiple-plus"
           >
             <template v-slot:item="{ props, item }">
               <v-list-item
