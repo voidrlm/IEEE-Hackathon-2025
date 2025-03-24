@@ -1,121 +1,106 @@
 <template>
-  <v-container>
-    <!-- Filters -->
-    <v-row class="mt-4">
-      <v-col cols="12" md="4" offset-md="4">
-        <v-select
-          v-model="selectedCategory"
-          label="Select a job category"
-          :items="categories"
-          outlined
-          dense
-        ></v-select>
-      </v-col>
-    </v-row>
+  <v-app>
+    <!-- Navigation Drawer -->
+    <v-navigation-drawer v-model="drawer" app permanent width="300">
+      <!-- Search Bar -->
+      <v-text-field
+        v-model="searchQuery"
+        label="Search Jobs"
+        clearable
+        class="mx-4 mt-4"
+        @input="searchJobs"
+      ></v-text-field>
 
-    <v-row>
-      <v-col cols="12" md="10" offset-md="1">
-        <v-card
-          rounded="xl"
-          class="pa-4 mb-4"
-          elevation="3"
+      <!-- Job List -->
+      <v-list dense>
+        <v-list-item
           v-for="job in filteredJobs"
           :key="job.id"
+          @click="selectJob(job)"
+          :class="{ 'active-job': selectedJob?.id === job.id }"
+          class="job-item pa-2"
         >
-          <!-- Job Header -->
-          <v-card-title class="text-h5 d-flex align-center">
-            <v-avatar size="36" class="mr-3">
+          <template v-slot:prepend>
+            <v-avatar>
               <img :src="job.companyLogo" alt="Company Logo" />
             </v-avatar>
-            <span>{{ job.title }}</span>
+          </template>
+          <v-list-item-title>{{ job.title }}</v-list-item-title>
+          <v-list-item-subtitle class="text-body-2 secondary--text">
+            {{ job.company }} • {{ job.location }}
+          </v-list-item-subtitle>
+          <span class="text-caption text-muted">{{
+            formatDate(job.postedDate)
+          }}</span>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+
+    <!-- Main Content Area -->
+    <v-main>
+      <v-container fluid class="pa-4">
+        <!-- Job Details -->
+        <div v-if="selectedJob">
+          <div class="d-flex align-center mb-4">
+            <img
+              :src="selectedJob.companyLogo"
+              alt="Company Logo"
+              class="company-logo mr-3"
+            />
+            <div>
+              <h2 class="mb-1">{{ selectedJob.title }}</h2>
+              <p class="text-body-2 secondary--text">
+                {{ selectedJob.company }} • {{ selectedJob.location }}
+              </p>
+            </div>
             <v-spacer />
             <!-- Apply Button -->
-            <v-btn color="primary" small @click="applyToJob(job.id)">
+            <v-btn color="primary" small @click="applyToJob(selectedJob.id)">
               Apply Now
             </v-btn>
-          </v-card-title>
+          </div>
 
           <!-- Job Metadata -->
-          <v-card-subtitle class="text-body-2 secondary--text">
-            {{ job.category }} • Posted by
-            <span class="font-weight-medium">{{ job.company }}</span> •
-            {{ formatDate(job.postedDate) }}
-          </v-card-subtitle>
+          <p class="text-body-2 mb-3">
+            Posted: {{ formatDate(selectedJob.postedDate) }}
+          </p>
 
           <!-- Job Description -->
-          <v-card-text v-if="job.description" class="text-body-1 mb-3">
-            {{ job.description }}
-          </v-card-text>
-
-          <!-- Job Location -->
-          <div class="text-body-2 mb-3">
-            <strong>Location:</strong> {{ job.location }}
-          </div>
-
-          <!-- Salary Range -->
-          <div v-if="job.salaryRange" class="text-body-2 mb-3">
-            <strong>Salary:</strong> {{ job.salaryRange }}
-          </div>
+          <p v-if="selectedJob.description" class="mb-3">
+            {{ selectedJob.description }}
+          </p>
 
           <!-- Skills Required -->
-          <div v-if="job.skills.length" class="text-body-2 mb-3">
+          <div v-if="selectedJob.skills.length" class="mb-3">
             <strong>Skills:</strong>
-            <span v-for="skill in job.skills" :key="skill" class="chip mr-2">
+            <span
+              v-for="skill in selectedJob.skills"
+              :key="skill"
+              class="chip mr-2"
+            >
               {{ skill }}
             </span>
           </div>
 
-          <!-- Comments Section -->
-          <v-card-subtitle class="text-h6">Comments</v-card-subtitle>
-          <div v-for="comment in job.comments" :key="comment.id" class="mb-4">
-            <div class="d-flex align-center">
-              <v-avatar size="24" class="mr-3">{{
-                comment.user.charAt(0)
-              }}</v-avatar>
-              <div>
-                <span class="font-weight-bold">{{ comment.user }}</span>
-                <span class="text-caption">{{ comment.timestamp }}</span>
-              </div>
-            </div>
-            <v-card-text>{{ comment.text }}</v-card-text>
-            <v-btn icon small @click="replyToComment(job.id, comment.id)">
-              <v-icon small>mdi-reply</v-icon>
-            </v-btn>
+          <!-- Salary Range -->
+          <p v-if="selectedJob.salaryRange" class="mb-3">
+            Salary: {{ selectedJob.salaryRange }}
+          </p>
 
-            <!-- Nested Replies -->
-            <div v-if="comment.replies.length" class="pl-5">
-              <div
-                v-for="reply in comment.replies"
-                :key="reply.id"
-                class="d-flex align-center"
-              >
-                <v-avatar size="24" class="mr-3">{{
-                  reply.user.charAt(0)
-                }}</v-avatar>
-                <div>
-                  <span class="font-weight-bold">{{ reply.user }}</span>
-                  <span class="text-caption">{{ reply.timestamp }}</span>
-                </div>
-                <v-card-text>{{ reply.text }}</v-card-text>
-              </div>
-            </div>
+          <!-- Footer Links (e.g., Save, Share) -->
+          <div class="d-flex justify-end mt-4">
+            <v-btn text small color="secondary">Save</v-btn>
+            <v-btn text small color="secondary">Share</v-btn>
           </div>
+        </div>
 
-          <!-- Add Comment -->
-          <v-textarea
-            v-model="newComment[job.id]"
-            outlined
-            rows="2"
-            placeholder="Add a comment..."
-            class="mb-3"
-          ></v-textarea>
-          <v-btn color="primary" small @click="addComment(job.id)"
-            >Comment</v-btn
-          >
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+        <!-- Placeholder when no job is selected -->
+        <div v-else class="placeholder text-center text-muted">
+          Select a job to view details.
+        </div>
+      </v-container>
+    </v-main>
+  </v-app>
 </template>
 
 <script>
@@ -123,10 +108,11 @@ export default {
   name: "JobSearchView",
   data() {
     return {
+      drawer: true,
       jobs: [],
-      categories: ["Engineering", "Marketing", "Design", "Finance", "Other"],
-      selectedCategory: null,
-      newComment: {},
+      searchQuery: "",
+      selectedFilters: [],
+      selectedJob: null,
     };
   },
   mounted() {
@@ -137,8 +123,7 @@ export default {
     async getJobs() {
       this.jobs = Array.from({ length: 50 }, (_, index) => ({
         id: index + 1,
-        title: `Job Title ${index + 1}`,
-        category: this.categories[index % 5],
+        title: `Java Intern`,
         company: `Company ${index + 1}`,
         companyLogo: `https://picsum.photos/100?random=${index + 1}`,
         postedDate: new Date().toISOString(),
@@ -146,50 +131,12 @@ export default {
         location: `City ${index % 10}, Country`,
         salaryRange:
           index % 2 === 0 ? `$${50 + index}k - $${70 + index}k` : null,
-        skills: ["Skill A", "Skill B", "Skill C"].slice(0, (index % 3) + 1),
-        comments: [],
+        skills: ["Java", "Spring Boot", "SQL"].slice(0, (index % 3) + 1),
       }));
     },
     // Apply to a job
     applyToJob(jobId) {
       alert(`You have applied to Job ID ${jobId}`);
-    },
-    // Add comment to job
-    addComment(jobId) {
-      const text = this.newComment[jobId];
-      if (!text || !text.trim()) {
-        alert("Comment cannot be empty!");
-        return;
-      }
-      const job = this.jobs.find((j) => j.id === jobId);
-      const commentId = job.comments.length + 1;
-      job.comments.push({
-        id: commentId,
-        user: "Current User",
-        timestamp: new Date().toISOString(),
-        text,
-        replies: [],
-      });
-      this.newComment[jobId] = "";
-    },
-    // Reply to comment
-    replyToComment(jobId, commentId) {
-      const replyText = prompt("Enter your reply:");
-      if (!replyText || !replyText.trim()) {
-        alert("Reply cannot be empty!");
-        return;
-      }
-      const job = this.jobs.find((j) => j.id === jobId);
-      const comment = job.comments.find((c) => c.id === commentId);
-      if (comment) {
-        const replyId = comment.replies.length + 1;
-        comment.replies.push({
-          id: replyId,
-          user: "Current User",
-          timestamp: new Date().toISOString(),
-          text: replyText,
-        });
-      }
     },
     // Format date for display
     formatDate(dateString) {
@@ -200,37 +147,41 @@ export default {
         year: "numeric",
       });
     },
+    // Search for jobs
+    searchJobs() {
+      this.filteredJobs = this.jobs.filter((job) =>
+        job.title.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
+    },
+    // Select a job to display details
+    selectJob(job) {
+      this.selectedJob = job;
+    },
   },
   computed: {
     filteredJobs() {
-      if (!this.selectedCategory) return this.jobs;
-      return this.jobs.filter((job) => job.category === this.selectedCategory);
+      if (!this.searchQuery) return this.jobs;
+      return this.jobs.filter((job) =>
+        job.title.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
     },
   },
 };
 </script>
 
 <style scoped>
-.v-card:not(:last-child) {
-  margin-bottom: 1rem;
+.active-job {
+  background-color: #e0e0e0;
 }
-.v-card-title {
-  display: flex;
-  align-items: center;
-}
-.v-btn {
-  margin-left: 8px;
-}
-.secondary--text {
-  color: #6c757d;
-}
-.rounded {
-  border-radius: 10px;
-}
+
 .chip {
   display: inline-block;
   background-color: #e0e0e0;
   padding: 4px 8px;
   border-radius: 16px;
+}
+
+.placeholder {
+  font-size: larger;
 }
 </style>
