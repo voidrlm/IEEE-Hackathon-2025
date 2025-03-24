@@ -1,14 +1,28 @@
 <template>
   <v-container>
-    <!-- Filters -->
     <v-row class="mt-4">
-      <v-col cols="12" md="4" offset-md="4">
+      <v-col cols="12" sm="8">
+        <v-text-field
+          v-model="searchQuery"
+          label="Search"
+          variant="solo"
+          density="compact"
+          clearable
+          rounded
+          prepend-inner-icon="mdi-magnify"
+        ></v-text-field>
+      </v-col>
+      <v-col cols="12" sm="4">
         <v-select
           v-model="selectedCategory"
           label="Select a category"
           :items="categories"
-          outlined
-          dense
+          variant="solo"
+          density="compact"
+          class="mb-4"
+          rounded
+          clearable
+          prepend-inner-icon="mdi-filter"
         ></v-select>
       </v-col>
     </v-row>
@@ -135,6 +149,7 @@ export default {
       threads: [],
       categories: ["Tech", "Gaming", "Music", "Sports", "Misc"],
       selectedCategory: null,
+      searchQuery: "",
       newComment: {},
     };
   },
@@ -218,10 +233,18 @@ export default {
   },
   computed: {
     filteredThreads() {
-      if (!this.selectedCategory) return this.threads;
-      return this.threads.filter(
-        (thread) => thread.category === this.selectedCategory
-      );
+      let threads = this.threads;
+      if (this.selectedCategory) {
+        threads = threads.filter(
+          (thread) => thread.category === this.selectedCategory
+        );
+      }
+      if (this.searchQuery) {
+        threads = threads.filter((thread) =>
+          thread.title.toLowerCase().includes(this.searchQuery.toLowerCase())
+        );
+      }
+      return threads;
     },
   },
 };
