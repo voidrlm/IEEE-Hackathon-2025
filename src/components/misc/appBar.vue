@@ -1,7 +1,7 @@
 <template>
   <v-app-bar app height="60" elevation="2">
     <v-img
-      class="ml-2"
+      class="ml-5"
       max-height="55"
       max-width="150"
       :src="require(`@/assets/main-logo.svg`)"
