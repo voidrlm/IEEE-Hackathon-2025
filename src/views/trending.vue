@@ -1,87 +1,80 @@
 <template>
   <v-container>
+    <v-card-title class="text-h5 justify-center bold mb-2">
+      <v-icon class="primary--text me-2" size="30">mdi-trending-up</v-icon>
+      <span class="primary--text">Trending Topics</span>
+    </v-card-title>
     <v-row>
-      <v-col cols="12" md="10" offset-md="1">
+      <v-col cols="12">
         <!-- Trending Topics Section -->
-        <v-card rounded="xl" class="pa-4 mb-4" elevation="3">
-          <v-card-title class="text-h5 d-flex align-center">
-            <span>Trending Topics</span>
-          </v-card-title>
-          <v-list dense>
-            <v-list-item v-for="trend in trends" :key="trend.id">
-              <v-list-item-content>
-                <v-list-item-title class="text-h6">
-                  {{ trend.name }}
-                </v-list-item-title>
-                <v-list-item-subtitle class="text-body-2 secondary--text">
-                  {{
-                    trend.tweet_volume
-                      ? `${trend.tweet_volume} Tweets`
-                      : "Trending Now"
-                  }}
-                </v-list-item-subtitle>
-              </v-list-item-content>
-              <v-btn icon @click="viewTrend(trend.query)">
-                <v-icon>mdi-arrow-right</v-icon>
-              </v-btn>
-            </v-list-item>
-          </v-list>
-        </v-card>
-
-        <!-- Recent Posts Section -->
-        <v-card rounded="xl" class="pa-4 mb-4" elevation="3">
-          <v-card-title class="text-h5 d-flex align-center">
-            <span>Recent Posts</span>
-          </v-card-title>
-          <div v-for="post in posts" :key="post.id" class="mb-3">
-            <div class="d-flex align-center mb-2">
-              <v-avatar size="36" class="mr-3" :color="'primary'">
-                <span>{{ post.user_initials }}</span>
-              </v-avatar>
-              <span class="font-weight-bold">{{ post.username }}</span>
+        <v-card
+          rounded="xl"
+          class="pa-4 mb-4"
+          elevation="3"
+          style="background-color: #f5f5f5"
+        >
+          <div class="mt-4">
+            <!-- Loop through each trend -->
+            <div
+              v-for="trend in trends"
+              :key="trend.id"
+              class="mb-4"
+              @click="viewTrend(trend.search)"
+              style="cursor: pointer"
+            >
+              <v-row dense align="center">
+                <!-- Topic Name and Tweet Volume -->
+                <v-col cols="8">
+                  <div class="text-h6">{{ trend.name }}</div>
+                  <div class="text-body-2">
+                    {{
+                      trend.tweet_volume
+                        ? `${trend.tweet_volume} posts`
+                        : "Trending Now"
+                    }}
+                  </div>
+                </v-col>
+                <!-- Button aligned to the right -->
+                <v-col cols="4" class="d-flex justify-end">
+                  <v-btn
+                    icon
+                    color="primary"
+                    @click="viewTrend(trend.search)"
+                    size="30"
+                  >
+                    <v-icon large>mdi-arrow-right</v-icon>
+                  </v-btn>
+                </v-col>
+              </v-row>
+              <!-- Divider between trends -->
+              <v-divider
+                class="mt-4"
+                v-if="trend.id !== trends[trends.length - 1].id"
+              ></v-divider>
             </div>
-            <p class="text-body-1">{{ post.content }}</p>
           </div>
         </v-card>
       </v-col>
     </v-row>
   </v-container>
 </template>
+
 <script>
+import { trends } from "@/resources/web-constants.js";
+
 export default {
-  name: "TwitterTrendingPage",
+  name: "TrendingPage",
   data() {
     return {
-      trends: [],
+      trends: trends,
       posts: [],
     };
   },
-  mounted() {
-    this.fetchTrends();
-    this.fetchPosts();
-  },
+  mounted() {},
   methods: {
-    // Fetch mock trending topics
-    async fetchTrends() {
-      this.trends = Array.from({ length: 10 }, (_, index) => ({
-        id: index + 1,
-        name: `#Topic${index + 1}`,
-        query: `%23Topic${index + 1}`,
-        tweet_volume: Math.floor(Math.random() * 100000),
-      }));
-    },
-    // Fetch mock recent posts
-    async fetchPosts() {
-      this.posts = Array.from({ length: 5 }, (_, index) => ({
-        id: index + 1,
-        username: `User${index + 1}`,
-        user_initials: `U${index + 1}`,
-        content: `This is a sample tweet content for post ${index + 1}.`,
-      }));
-    },
     // View trend details
     viewTrend(query) {
-      window.open(`https://twitter.com/search?q=${query}`, "_blank");
+      this.$router.push({ name: "Feed", query: { q: query } });
     },
   },
 };
