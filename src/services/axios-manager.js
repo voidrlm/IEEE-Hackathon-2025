@@ -1,6 +1,5 @@
 // axios-manager.js
 import axios from "axios";
-import Cookies from "js-cookie";
 
 // Base Axios instance
 const axiosInstance = axios.create({
@@ -34,13 +33,7 @@ export const post = async (
   try {
     // Prepare the headers
     const headers = {};
-    // Check if authentication is required
-    if (!apiConfig.isPublic) {
-      const authToken = Cookies.get("token");
-      const organizationId = Cookies.get("organizationId");
-      headers.Authorization = `token ${authToken}`; // Set Authorization header
-      headers["X-OrganizationId"] = organizationId; // Set X-OrganizationId header
-    }
+    headers["ngrok-skip-browser-warning"] = "cougar";
     var url = constructUrl(apiConfig, queryParams);
     const response = await axiosInstance.post(url, requestParameter, {
       headers: headers,
@@ -64,13 +57,7 @@ export const get = async (apiConfig, queryParams = {}) => {
   try {
     // Prepare the headers
     const headers = {};
-    // Check if authentication is required
-    if (!apiConfig.isPublic) {
-      const authToken = Cookies.get("token");
-      const organizationId = Cookies.get("organizationId");
-      headers.Authorization = `token ${authToken}`; // Set Authorization header
-      headers["X-OrganizationId"] = organizationId; // Set X-OrganizationId header
-    }
+    headers["ngrok-skip-browser-warning"] = "cougar";
     var url = constructUrl(apiConfig, queryParams);
     const response = await axiosInstance.get(url, {
       headers: headers,
@@ -93,13 +80,7 @@ export const put = async (apiConfig, requestParameter = {}, queryParams) => {
   try {
     // Prepare the headers
     const headers = {};
-    // Check if authentication is required
-    if (!apiConfig.isPublic) {
-      const authToken = Cookies.get("token");
-      const organizationId = Cookies.get("organizationId");
-      headers.Authorization = `token ${authToken}`; // Set Authorization header
-      headers["X-OrganizationId"] = organizationId; // Set X-OrganizationId header
-    }
+
     var url = constructUrl(apiConfig, queryParams);
     const response = await axiosInstance.put(url, requestParameter, {
       headers: headers,
@@ -123,13 +104,7 @@ export const del = async (apiConfig, queryParams = {}) => {
   try {
     // Prepare the headers
     const headers = {};
-    // Check if authentication is required
-    if (!apiConfig.isPublic) {
-      const authToken = Cookies.get("token");
-      const organizationId = Cookies.get("organizationId");
-      headers.Authorization = `token ${authToken}`; // Set Authorization header
-      headers["X-OrganizationId"] = organizationId; // Set X-OrganizationId header
-    }
+    headers["ngrok-skip-browser-warning"] = "cougar";
     var url = constructUrl(apiConfig, queryParams);
     const response = await axiosInstance.delete(url, {
       headers: headers,
