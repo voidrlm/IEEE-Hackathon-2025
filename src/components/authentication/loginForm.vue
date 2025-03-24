@@ -1,5 +1,5 @@
 <template>
-  <v-form ref="form">
+  <v-form ref="form" @submit.prevent="save">
     <v-card-text>
       <p class="semibold text-start mb-2">User Name *</p>
       <v-text-field
@@ -37,7 +37,7 @@
           density="comfortable"
           block
           class="rounded-lg bg-primary"
-          @click="save"
+          type="submit"
           :loading="isApiExecuting"
         >
           Submit
@@ -57,28 +57,16 @@ export default {
   }),
   methods: {
     async save() {
-      const { valid } = await this.$refs.form.validate();
-      if (valid) {
-        this.isApiExecuting = true;
-        // TODO
-        // var response = await apiRequestHandler("login", {
-        //   username: this.userId,
-        //   password: this.password,
-        // });
-        //if (response.success) {
-        //await this.$store.dispatch("setUser", response.data);
-        this.$router.push({ name: "Feed" });
-        // }
-        // this.$store.dispatch("showSnackbar", {
-        //   show: true,
-        //   text: response.success
-        //     ? "Successfully logged in!"
-        //     : response.errorMessage.message,
-        //   color: response.status,
-        // });
+      this.isApiExecuting = true;
 
-        this.isApiExecuting = false;
-      }
+      this.$store.dispatch("setUser", {
+        userId: this.userId,
+        name: "Arjun Vasu",
+        location: "80 Lovell",
+      });
+      this.$router.push({ name: "Feed" });
+
+      this.isApiExecuting = false;
     },
   },
 };
