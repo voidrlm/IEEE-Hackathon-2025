@@ -19,7 +19,11 @@
     >
       <v-row>
         <v-col cols="auto">
-          <v-img :src="require(`@/assets/logo.svg`)" alt="Sample" width="30" />
+          <v-img
+            :src="require(`@/assets/cougar.png`)"
+            alt="Sample"
+            width="30"
+          />
         </v-col>
         <v-col align-self="center">
           <span class="bold mb-5 ml-n3 text-h5 text-primary"> ClarkVerse </span>
@@ -43,7 +47,8 @@
         class="pt-5 text-white semibold"
         :class="$vuetify.display.mdAndDown ? 'text-h5' : 'text-h4'"
       >
-        A verse-based social media platform for Clark University students
+        A dedicated AI-powered digital ecosystem, enhanced by Cougar AI,
+        connecting students, faculty, and alumni seamlessly
       </div>
     </div>
     <v-footer app class="bg-primary" height="30px">
