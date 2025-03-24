@@ -60,6 +60,7 @@
       <v-card-actions>
         <v-text-field
           variant="solo"
+          prepend-inner-icon="mdi-message"
           density="compact"
           v-model="userInput"
           label="Type a message..."
@@ -74,7 +75,7 @@
     </v-card>
 
     <!-- Ride Request Dialog -->
-    <v-dialog v-model="showRideDialog" max-width="600px">
+    <v-dialog v-model="showRideDialog" fullscreen>
       <v-card>
         <!-- Dialog Header -->
         <v-card-title class="d-flex justify-space-between align-center">
@@ -126,6 +127,67 @@
         </div>
       </v-card>
     </v-dialog>
+    <!-- Food Order Dialog -->
+    <v-dialog
+      v-model="showFoodDialog"
+      max-width="800px"
+      content-class="rounded-xl"
+    >
+      <v-card rounded="xl">
+        <!-- Dialog Header -->
+        <v-card-title class="d-flex justify-space-between">
+          <span class="bold">Order Food from Higgins Cafe</span>
+          <v-btn
+            icon
+            flat
+            color="primary"
+            size="25"
+            @click="showFoodDialog = false"
+          >
+            <v-icon size="20">mdi-close-circle</v-icon>
+          </v-btn>
+        </v-card-title>
+
+        <v-row class="mx-4">
+          <v-col cols="3">
+            <v-img
+              src="https://cdn.clarku.edu/map/wp-content/uploads/sites/347/2023/07/higgins-cafe.jpg"
+              alt="Higgins Cafe"
+              width="100%"
+              class="mb-4"
+            />
+          </v-col>
+          <v-col cols="9">
+            <p class="text-subtitle-1">
+              Higgins Cafe is located in the lower level of the University
+              Center. It offers a variety of food options, including sandwiches,
+              salads, and hot entrees.
+            </p>
+          </v-col>
+        </v-row>
+
+        <!-- Order Form -->
+        <v-card-text class="px-4">
+          <v-form ref="foodForm" @submit.prevent="orderFood">
+            <!-- Multi-select for food items -->
+            <v-select
+              v-model="selectedFoods"
+              label="Select Food Items"
+              :items="menuItems"
+              variant="solo-filled"
+              rounded
+              density="compact"
+              multiple
+              item-title="name"
+              item-value="name"
+            ></v-select>
+          </v-form>
+        </v-card-text>
+        <v-card-actions class="justify-center">
+          <v-btn color="primary" type="submit" @click="orderFood">Order</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <!-- Map Dialog -->
     <v-dialog v-model="showMapDialog" max-width="800px">
@@ -152,7 +214,7 @@
 
 <script>
 import { apiRequestHandler } from "@/services/rest-api-manager";
-
+import { foodItems } from "@/resources/web-constants";
 export default {
   name: "ChatBotComponent",
   data() {
@@ -161,7 +223,9 @@ export default {
       showChat: false,
       showRideDialog: false,
       showMapDialog: false,
+      showFoodDialog: false,
       userInput: "",
+      selectedFoods: [],
       messages: [
         {
           text: "Roooaaaaar! *wink wink* Hi there! How can I help you?",
@@ -177,6 +241,7 @@ export default {
         lng: 0,
         zoom: 0,
       },
+      menuItems: foodItems,
     };
   },
   mounted() {
@@ -202,32 +267,31 @@ export default {
         if (this.userInput.toLowerCase().includes("book a ride")) {
           setTimeout(() => {
             this.messages.push({
-              text: "Opening the ride request...",
+              text: "Let me check for available rides...",
               sender: "bot",
             });
+
             this.showRideDialog = true;
+          }, 1000);
+        } else if (this.userInput.toLowerCase().includes("order food")) {
+          setTimeout(() => {
+            this.messages.push({
+              text: "Wait a sec, lemme pull up Higgins menu",
+              sender: "bot",
+            });
+            this.showFoodDialog = true;
           }, 1000);
         } else {
           var response = await apiRequestHandler("chatbot", {
             question: this.userInput,
           });
-          console.log(response);
-          response = {
-            success: true,
-            status: "success",
-            data: {
-              response:
-                "\n1. Go to the university's website and navigate to the international student services portal.\n2. Click on the 'Apply for a Degree' tab.\n3. Fill in your personal details and upload the required documents as specified.\n4. Submit the form and wait for further instructions from the university's admissions team.\n",
-              status: "200",
-            },
-          };
           if (response.success) {
             if (response.data.co_ordinates) {
               this.messages.push({ text: "Opening Maps...", sender: "bot" });
               this.coordinates = response.data.co_ordinates;
               setTimeout(() => {
                 this.showMapDialog = true;
-              }, 1000);
+              }, 3000);
             } else {
               this.messages.push({
                 text: response.data.response,
@@ -261,13 +325,57 @@ export default {
         return;
       }
 
-      this.$store.dispatch("showSnackbar", {
-        show: true,
-        text: `Ride requested to ${this.dropoffLocation} in ${this.pickupTime}.`,
-        color: "success",
+      this.messages.push({
+        text:
+          "Ride requested to " +
+          this.dropoffLocation +
+          " in " +
+          this.pickupTime +
+          ".",
+        sender: "bot",
       });
 
       this.closeRideDialog();
+    },
+    orderFood() {
+      if (this.selectedFoods.length === 0) {
+        this.$store.dispatch("showSnackbar", {
+          show: true,
+          text: "Please select a food item.",
+          color: "success",
+        });
+        return;
+      }
+
+      let total = 0;
+      this.selectedFoods.forEach((food) => {
+        total += foodItems.find((item) => item.name === food).price;
+      });
+      this.messages.push({
+        text: this.selectedFoods
+          .map(
+            (food) =>
+              "Order for " +
+              food +
+              " placed. Price: $" +
+              foodItems.find((item) => item.name === food).price
+          )
+          .join("\n"),
+        sender: "bot",
+      });
+      this.messages.push({
+        text: "Order placed successfully for $" + total.toFixed(2) + "...",
+        sender: "bot",
+      });
+
+      setTimeout(() => {
+        this.messages.push({
+          text: "Driver David will be there in 5 minutes.",
+          sender: "bot",
+        });
+      }, 1000);
+      this.selectedFoods = [];
+      this.showFoodDialog = false;
     },
   },
 };
