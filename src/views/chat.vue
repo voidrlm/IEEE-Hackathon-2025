@@ -11,6 +11,9 @@
           density="compact"
           @input="searchChats"
         />
+        <v-btn block color="primary" @click="openCreateGroupDialog" rounded="xl"
+          ><v-icon start> mdi-plus-circle</v-icon>Create Group</v-btn
+        >
         <v-list>
           <v-list-item
             v-for="chat in filteredChats"
@@ -30,10 +33,6 @@
             <v-list-item-subtitle>{{ chat.lastMessage }}</v-list-item-subtitle>
           </v-list-item>
         </v-list>
-
-        <v-btn block color="primary" @click="openCreateGroupDialog"
-          >Create Group</v-btn
-        >
       </v-col>
 
       <!-- Chat Window -->
