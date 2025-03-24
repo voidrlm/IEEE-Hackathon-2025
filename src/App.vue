@@ -5,7 +5,7 @@
     <v-main>
       <router-view />
       <snackbar />
-      <chatbot />
+      <chatbot v-if="showNavAppBar" />
       <!-- Added chatbot component -->
     </v-main>
   </v-app>
