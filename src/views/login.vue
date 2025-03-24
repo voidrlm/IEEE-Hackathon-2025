@@ -3,18 +3,13 @@
     <heroPane v-if="!$vuetify.display.xs" />
     <v-col cols="12" sm="6" class="d-flex align-center justify-center">
       <v-card width="400px" class="rounded-xl pa-5" elevation="20">
-        <v-toolbar
-          v-if="$vuetify.display.xs"
-          density="compact"
-          class="bg-background mb-5 rounded-xl"
-        >
+        <v-card-title class="text-h4 text-start text-primary semibold">
           <v-img
-            src="https://avatars.githubusercontent.com/u/117543015?v=4"
+            v-if="$vuetify.display.xs"
+            :src="require(`@/assets/cougar.png`)"
             alt="Sample"
-            width="200"
-        /></v-toolbar>
-        <v-card-title class="text-h4 text-start text-primary semibold"
-          >Login</v-card-title
+            width="50"
+          />Login</v-card-title
         >
         <loginForm />
       </v-card>
