@@ -26,6 +26,11 @@ export const routes = [
     component: () => import("../views/trending.vue"),
   },
   {
+    path: "/chat",
+    name: "Chat",
+    component: () => import("../views/chat.vue"),
+  },
+  {
     path: "/jobs",
     name: "Jobs",
     component: () => import("../views/jobSearch.vue"),
