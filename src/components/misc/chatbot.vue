@@ -17,8 +17,8 @@
       <v-card-title class="d-flex justify-space-between">
         <span class="bold">How may I help you today?</span>
 
-        <v-btn icon flat color="primary" size="small" @click="toggleChat">
-          <v-icon>mdi-close</v-icon>
+        <v-btn icon flat color="primary" size="25" @click="toggleChat">
+          <v-icon size="20">mdi-chevron-down</v-icon>
         </v-btn>
       </v-card-title>
 
@@ -42,9 +42,11 @@
       </iframe>
       <v-card-actions>
         <v-text-field
+          variant="solo"
+          density="compact"
           v-model="userInput"
           label="Type a message..."
-          dense
+          rounded="xl"
           hide-details
           @keyup.enter="sendMessage"
         ></v-text-field>
@@ -96,6 +98,7 @@ export default {
 }
 
 .chat-container {
+  border-radius: 25px;
   position: fixed;
   bottom: 80px;
   right: 20px;
