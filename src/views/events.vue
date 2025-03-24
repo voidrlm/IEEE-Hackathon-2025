@@ -63,7 +63,10 @@
               {{ formatDate(event.startsOn) }} at
               {{ formatTime(event.startsOn) }}
             </v-card-subtitle>
-            <v-card-text>{{ event.location }}</v-card-text>
+            <v-card-text
+              ><v-icon start>mdi-map-marker</v-icon
+              >{{ event.location }}</v-card-text
+            >
           </v-card>
         </v-col>
       </template>
