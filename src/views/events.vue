@@ -1,58 +1,72 @@
 <template>
-  <v-container fluid>
+  <v-container>
+    <v-row class="mt-4">
+      <!-- Search Bar -->
+      <v-col cols="12" sm="8" lg="6" xl="4">
+        <v-text-field
+          v-model="searchQuery"
+          label="Search"
+          variant="solo"
+          density="compact"
+          clearable
+          rounded
+          prepend-inner-icon="mdi-magnify"
+        ></v-text-field>
+      </v-col>
+      <!-- Category Dropdown -->
+      <v-col cols="12" sm="4" lg="3" xl="2">
+        <v-select
+          v-model="selectedThemes"
+          label="Select themes"
+          :items="uniqueThemes"
+          variant="solo"
+          density="compact"
+          rounded
+          clearable
+        ></v-select>
+      </v-col>
+      <!-- Benefits Dropdown -->
+      <v-col cols="12" sm="4" lg="3" xl="2">
+        <v-select
+          v-model="selectedBenefits"
+          label="Select benefits"
+          :items="benefitNames"
+          variant="solo"
+          density="compact"
+          rounded
+          clearable
+        ></v-select>
+      </v-col>
+    </v-row>
+
+    <!-- Main Content for Events -->
     <v-row>
-      <!-- Sidebar for Filters -->
-      <v-col cols="3">
-        <v-card class="pa-3" elevation="2">
-          <v-card-title class="text-h6">Filters</v-card-title>
-          <v-card-text>
-            <v-text-field
-              v-model="searchQuery"
-              label="Search Events"
-              variant="solo"
-              dense
-              @input="searchEvents"
-            ></v-text-field>
-
-            <v-select
-              v-model="selectedThemes"
-              label="Select themes"
-              :items="['Music', 'Art', 'Sports', 'Misc']"
-              variant="solo"
-              dense
-              multiple
-            ></v-select>
-          </v-card-text>
-        </v-card>
-      </v-col>
-
-      <!-- Main Content for Events -->
-      <v-col cols="9">
-        <v-row>
-          <template v-for="event in filteredEvents" :key="event.id">
-            <v-col cols="12" sm="6" lg="4" xl="2">
-              <v-card
-                class="pa-3"
-                elevation="2"
-                height="300"
-                @click="showEventDetails(event)"
-              >
-                <v-img
-                  :src="event.image"
-                  cover
-                  max-height="200"
-                  max-width="400"
-                ></v-img>
-                <v-card-title>{{ event.title }}</v-card-title>
-                <v-card-subtitle>
-                  {{ event.date }} at {{ event.time }}
-                </v-card-subtitle>
-                <v-card-text>{{ event.location }}</v-card-text>
-              </v-card>
-            </v-col>
-          </template>
-        </v-row>
-      </v-col>
+      <template v-for="event in filteredEvents" :key="event.id">
+        <v-col cols="12" sm="6" lg="4" xl="2">
+          <v-card
+            class="pa-3"
+            elevation="2"
+            @click="showEventDetails(event)"
+            rounded="xl"
+          >
+            <v-img
+              :src="
+                'https://se-images.campuslabs.com/clink/images/' +
+                  event.imagePath || 'https://via.placeholder.com/400x200'
+              "
+              cover
+              max-height="200"
+              max-width="400"
+            ></v-img>
+            <v-card-title>{{ event.name }}</v-card-title>
+            <v-card-subtitle>
+              {{ formatDate(event.startsOn) }} at
+              {{ formatTime(event.startsOn) }}
+            </v-card-subtitle>
+            <v-card-text>{{ event.location }}</v-card-text>
+          </v-card>
+        </v-col>
+      </template>
     </v-row>
 
     <!-- Event Details Dialog -->
@@ -66,7 +80,7 @@
 
 <script>
 import EventDetailsDialog from "../components/events/eventDialog.vue";
-
+import { events } from "@/resources/web-constants";
 export default {
   name: "EventsDashboard",
   components: {
@@ -76,46 +90,37 @@ export default {
     return {
       searchQuery: "",
       selectedThemes: [],
-      events: [
-        {
-          id: 1,
-          title: "Jam Out! With Jazz Workshop",
-          date: "Sunday, March 23",
-          time: "2023-03-23T12:30:00Z",
-          location: "Fuller Music Center Estabrook",
-          image: "https://picsum.photos/200/300",
-          description: "Join us for an afternoon of jazz music and fun!",
-          theme: "Music",
-        },
-        {
-          id: 2,
-          title: "CUSC Elections Committee Weekly Meeting",
-          date: "Sunday, March 23",
-          time: "2023-03-23T13:00:00Z",
-          location: "Clark Undergraduate Student Council Office",
-          image: "https://picsum.photos/200/300",
-          description:
-            "Join the CUSC Elections Committee for their weekly meeting.",
-          theme: "Misc",
-        },
-      ],
+      selectedBenefits: [],
+      benefitNames: ["Free Food", "Free Stuff"],
+      events: events,
       showEventDialog: false,
       selectedEvent: {},
     };
   },
   computed: {
+    uniqueThemes() {
+      return [...new Set(this.events.map((event) => event.theme))];
+    },
     filteredEvents() {
       let filteredEvents = this.events;
 
       if (this.searchQuery) {
         filteredEvents = filteredEvents.filter((event) =>
-          event.title.toLowerCase().includes(this.searchQuery.toLowerCase())
+          event.name.toLowerCase().includes(this.searchQuery.toLowerCase())
         );
       }
 
-      if (this.selectedThemes.length) {
+      if (this.selectedThemes && this.selectedThemes.length) {
         filteredEvents = filteredEvents.filter((event) =>
           this.selectedThemes.includes(event.theme)
+        );
+      }
+
+      if (this.selectedBenefits && this.selectedBenefits.length) {
+        filteredEvents = filteredEvents.filter((event) =>
+          event.benefitNames.some((benefit) =>
+            this.selectedBenefits.includes(benefit)
+          )
         );
       }
 
@@ -123,8 +128,13 @@ export default {
     },
   },
   methods: {
-    searchEvents() {
-      console.log("Searching for", this.searchQuery);
+    formatDate(dateString) {
+      const options = { weekday: "long", month: "long", day: "numeric" };
+      return new Date(dateString).toLocaleDateString(undefined, options);
+    },
+    formatTime(dateString) {
+      const options = { hour: "2-digit", minute: "2-digit", hour12: true };
+      return new Date(dateString).toLocaleTimeString(undefined, options);
     },
     showEventDetails(event) {
       this.selectedEvent = event;
